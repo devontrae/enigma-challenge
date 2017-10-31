@@ -19002,14 +19002,14 @@ var _reactDom = __webpack_require__(50);
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
-var _App = __webpack_require__(199);
+var _app = __webpack_require__(199);
 
-var _App2 = _interopRequireDefault(_App);
+var _app2 = _interopRequireDefault(_app);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-_reactDom2.default.render(_react2.default.createElement(_App2.default, null), document.getElementById('root'));
-//import 'material-design-icons/iconfont/material-icons.css';
+_reactDom2.default.render(_react2.default.createElement(_app2.default, null), document.getElementById('root'));
+// import 'material-design-icons/iconfont/material-icons.css';
 
 /***/ }),
 /* 185 */
@@ -40100,7 +40100,7 @@ var FormSection = function (_React$Component) {
 
     var _this = (0, _possibleConstructorReturn3.default)(this, (FormSection.__proto__ || (0, _getPrototypeOf2.default)(FormSection)).call(this, props));
 
-    if (window.location.hash.substring(1) == '') {
+    if (window.location.hash.substring(1) === '') {
       _this.start_passphrase = randomString.generate(5);
     } else {
       var hash = window.location.hash.substring(1, 6);
@@ -40117,89 +40117,80 @@ var FormSection = function (_React$Component) {
 
     _this.updateValue = function (name, value) {
       _this.setState((0, _extends4.default)({}, _this.state, (0, _defineProperty3.default)({}, name, value)));
-      console.log(value);
     };
 
-    _this.encryptMessage = function () {
-      var _ref = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee(event) {
-        var message;
-        return _regenerator2.default.wrap(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                _context.next = 2;
-                return axios.get('http://localhost:3771/api?query=query%20%7B%0A%20%20encrypt(%0A%20%20%20%20passphrase%3A%20%22' + _this.state.passphrase + '%22%2C%20%0A%20%20%20%20message%3A%20%22' + _this.state.message + '%22%2C%0A%20%20%09name%3A%20%22' + _this.state.name + '%22%2C%0A%20%20%20%20expiration%3A%20%22' + _this.state.expiration + '%22%0A%20%20)%20%7B%20ciphertext%20%7D%0A%7D%0A').then(function (response) {
-                  console.log(response);
-                  var data = response.data.data;
-                  var message = data.encrypt.ciphertext;
-                  console.log(message);
-                  return message;
-                }).catch(function (error) {
-                  console.log(error);
-                });
+    _this.newPassphrase = function () {
+      var newPassphrase = randomString.generate(5);
+      _this.setState({ passphrase: newPassphrase });
+      window.location.hash = '#' + newPassphrase;
+    };
 
-              case 2:
-                message = _context.sent;
+    _this.encryptMessage = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee() {
+      var message;
+      return _regenerator2.default.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              _context.next = 2;
+              return axios.get('http://localhost:3771/api?query=query%20%7B%0A%20%20encrypt(%0A%20%20%20%20passphrase%3A%20%22' + _this.state.passphrase + '%22%2C%20%0A%20%20%20%20message%3A%20%22' + _this.state.message + '%22%2C%0A%20%20%09name%3A%20%22' + _this.state.name + '%22%2C%0A%20%20%20%20expiration%3A%20%22' + _this.state.expiration + '%22%0A%20%20)%20%7B%20ciphertext%20%7D%0A%7D%0A').then(function (response) {
+                var data = response.data.data;
+                var message = data.encrypt.ciphertext;
+                console.log(message);
+                return message;
+              }).catch(function (error) {
+                console.log(error);
+              });
 
-                console.log(_this.state.message);
-                _this.setState({ encrypted: message });
+            case 2:
+              message = _context.sent;
 
-              case 5:
-              case 'end':
-                return _context.stop();
-            }
+              console.log(_this.state.message);
+              _this.setState({ encrypted: message });
+
+            case 5:
+            case 'end':
+              return _context.stop();
           }
-        }, _callee, _this2);
-      }));
+        }
+      }, _callee, _this2);
+    }));
 
-      return function (_x) {
-        return _ref.apply(this, arguments);
-      };
-    }();
+    _this.decryptMessage = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2() {
+      var decryptURI, loaded;
+      return _regenerator2.default.wrap(function _callee2$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              // Send a request to decrypt message
+              decryptURI = 'http://localhost:3771/api?query=query%20%7B%0A%20%20decrypt(%0A%20%20%20%20passphrase%3A%20%22' + _this.state.passphrase + '%22%2C%20%0A%20%20%20%20ciphertext%3A%20%22' + _this.state.encrypted + '%22%0A%20%20)%20%7B%20%0A%20%20%20%20message%2C%0A%20%20%20%20name%2C%0A%20%20%20%20expiration%0A%20%20%7D%0A%7D%0A';
+              _context2.next = 3;
+              return axios.get(decryptURI).then(function (response) {
+                var resp = response.data.data;
+                var message = resp.decrypt;
+                return message;
+              }).catch(function (error) {
+                console.log(error);
+              });
 
-    _this.decryptMessage = function () {
-      var _ref2 = (0, _asyncToGenerator3.default)( /*#__PURE__*/_regenerator2.default.mark(function _callee2(event) {
-        var decryptURI, loaded;
-        return _regenerator2.default.wrap(function _callee2$(_context2) {
-          while (1) {
-            switch (_context2.prev = _context2.next) {
-              case 0:
-                // Send a request to decrypt message
-                decryptURI = 'http://localhost:3771/api?query=query%20%7B%0A%20%20decrypt(%0A%20%20%20%20passphrase%3A%20%22' + _this.state.passphrase + '%22%2C%20%0A%20%20%20%20ciphertext%3A%20%22' + _this.state.encrypted + '%22%0A%20%20)%20%7B%20%0A%20%20%20%20message%2C%0A%20%20%20%20name%2C%0A%20%20%20%20expiration%0A%20%20%7D%0A%7D%0A';
-                _context2.next = 3;
-                return axios.get(decryptURI).then(function (response) {
-                  console.log(response);
-                  var resp = response.data.data;
-                  var message = resp.decrypt;
-                  return message;
-                }).catch(function (error) {
-                  console.log(error);
-                });
-
-              case 3:
-                loaded = _context2.sent;
+            case 3:
+              loaded = _context2.sent;
 
 
-                _this.setState({
-                  decrypted: loaded.message,
-                  expiration: new Date(loaded.expiration),
-                  name: loaded.name
-                });
+              _this.setState({
+                decrypted: loaded.message,
+                expiration: new Date(loaded.expiration),
+                name: loaded.name
+              });
 
-                alert(loaded.message);
+              alert(loaded.message);
 
-              case 6:
-              case 'end':
-                return _context2.stop();
-            }
+            case 6:
+            case 'end':
+              return _context2.stop();
           }
-        }, _callee2, _this2);
-      }));
-
-      return function (_x2) {
-        return _ref2.apply(this, arguments);
-      };
-    }();
+        }
+      }, _callee2, _this2);
+    }));
     return _this;
   }
 
@@ -40233,6 +40224,7 @@ var FormSection = function (_React$Component) {
           sundayFirstDayOfWeek: true
         }),
         this.state.name != '' ? _react2.default.createElement(_button.Button, { label: 'Encrypt Message', raised: true, primary: true, onClick: this.encryptMessage }) : _react2.default.createElement(_button.Button, { label: 'Encrypt Message', primary: true, disabled: true, onClick: this.encryptMessage }),
+        _react2.default.createElement('hr', null),
         _react2.default.createElement(_input2.default, {
           type: 'text',
           label: 'Passphrase',
@@ -40241,6 +40233,7 @@ var FormSection = function (_React$Component) {
           value: this.state.passphrase,
           onChange: this.updateValue.bind(this, 'passphrase')
         }),
+        _react2.default.createElement(_button.Button, { label: 'New Passphrase', raised: true, onClick: this.newPassphrase }),
         _react2.default.createElement(_input2.default, {
           type: 'text',
           label: 'Encrypted',
@@ -40248,7 +40241,6 @@ var FormSection = function (_React$Component) {
           value: this.state.encrypted,
           onChange: this.updateValue.bind(this, 'encrypted')
         }),
-        _react2.default.createElement('hr', null),
         this.state.encrypted != '' ? _react2.default.createElement(_button.Button, { label: 'Decrypt Message', onClick: this.decryptMessage }) : _react2.default.createElement(_button.Button, { label: 'Decrypt Message', disabled: true, onClick: this.decryptMessage })
       );
     }

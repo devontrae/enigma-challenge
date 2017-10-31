@@ -10,7 +10,7 @@ class FormSection extends React.Component {
   constructor(props) {
     super(props);
 
-    if (window.location.hash.substring(1) == '') {
+    if (window.location.hash.substring(1) === '') {
       this.start_passphrase = randomString.generate(5);
     } else {
       const hash = window.location.hash.substring(1, 6);
@@ -27,10 +27,15 @@ class FormSection extends React.Component {
 
     this.updateValue = (name, value) => {
       this.setState({ ...this.state, [name]: value });
-      console.log(value);
     };
 
-    this.encryptMessage = async (event) => {
+    this.newPassphrase = () => {
+      const newPassphrase = randomString.generate(5);
+      this.setState({ passphrase: newPassphrase });
+      window.location.hash = `#${newPassphrase}`;
+    };
+
+    this.encryptMessage = async () => {
       // Send a request to encrypt message
       const message = await axios
         .get(`http://localhost:3771/api?query=query%20%7B%0A%20%20encrypt(%0A%20%20%20%20passphrase%3A%20%22${this
@@ -39,7 +44,6 @@ class FormSection extends React.Component {
           .name}%22%2C%0A%20%20%20%20expiration%3A%20%22${this.state
           .expiration}%22%0A%20%20)%20%7B%20ciphertext%20%7D%0A%7D%0A`)
         .then((response) => {
-          console.log(response);
           const data = response.data.data;
           const message = data.encrypt.ciphertext;
           console.log(message);
@@ -52,7 +56,7 @@ class FormSection extends React.Component {
       this.setState({ encrypted: message });
     };
 
-    this.decryptMessage = async (event) => {
+    this.decryptMessage = async () => {
       // Send a request to decrypt message
       const decryptURI = `http://localhost:3771/api?query=query%20%7B%0A%20%20decrypt(%0A%20%20%20%20passphrase%3A%20%22${this
         .state.passphrase}%22%2C%20%0A%20%20%20%20ciphertext%3A%20%22${this.state
@@ -60,7 +64,6 @@ class FormSection extends React.Component {
       const loaded = await axios
         .get(decryptURI)
         .then((response) => {
-          console.log(response);
           const resp = response.data.data;
           const message = resp.decrypt;
           return message;
@@ -111,6 +114,8 @@ class FormSection extends React.Component {
 					? <Button label="Encrypt Message" raised primary onClick={this.encryptMessage} />
 					: <Button label="Encrypt Message" primary disabled onClick={this.encryptMessage} />}
 
+        <hr />
+
         <Input
           type="text"
           label="Passphrase"
@@ -120,6 +125,7 @@ class FormSection extends React.Component {
           onChange={this.updateValue.bind(this, 'passphrase')}
         />
 
+        <Button label="New Passphrase" raised onClick={this.newPassphrase} />
         <Input
           type="text"
           label="Encrypted"
@@ -127,7 +133,7 @@ class FormSection extends React.Component {
           value={this.state.encrypted}
           onChange={this.updateValue.bind(this, 'encrypted')}
         />
-        <hr />
+
         {this.state.encrypted != ''
 					? <Button label="Decrypt Message" onClick={this.decryptMessage} />
 					: <Button label="Decrypt Message" disabled onClick={this.decryptMessage} />}
